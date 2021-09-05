@@ -1,7 +1,7 @@
 // helper middleware for express requests with logging and error handling
 
 const fs = require('fs');
-const log = require('rf-log');
+const log = require('rf-log').customPrefixLogger('[rf-api-simple]');
 const jwt = require('jsonwebtoken');
 const rfHttp = require('rf-http');
 
