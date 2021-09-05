@@ -5,17 +5,14 @@ Nice little Framework on top of express: start express, add endpint settings, ri
 The `server.js`
 ```js
 const apiSimple = require('rf-api-simple');
-let API = {};
-function restartAPI () {
-   if (API && API.close) API.close();
-   API = apiSimple.createApi({
-      pathsWebserver: 'dest',
-      port: 4000,
-      apiPath: 'server/apis'
-   }, function (startApi) {
-      startApi(API);
-   });
-}
+apiSimple.createApi({
+   pathsWebserver: 'dest',
+   port: 4000,
+   apiPath: 'server/apis'
+}, function (startApiFileFunction) {
+   startApiFileFunction(API);
+});
+
 restartAPI(); // init
 
 ```

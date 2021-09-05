@@ -34,7 +34,11 @@ function createApi (config, apiCallbackFunction) {
    let expressApp = http.app;
    if (config.pathsApis && apiCallbackFunction) {
       log.success(`starting apis under ${config.pathsApis}`);
-      startApiFiles(config.pathsApis, apiCallbackFunction);
+
+      // dirty trick: wait till API was returned, so it can be used for the start function
+      setTimeout(function () {
+         startApiFiles(config.pathsApis, apiCallbackFunction);
+      }, 100);
    } else if (apiCallbackFunction && !config.pathsApis) {
       log.error(`apiCallbackFunction defined but no config.pathsApis`);
    } else if (!apiCallbackFunction && config.pathsApis) {
@@ -42,9 +46,7 @@ function createApi (config, apiCallbackFunction) {
    }
 
    return {
-      log: log,
       prefix: '/api/',
-      config: config,
       app: expressApp,
       server: http.server, // return of "app.listen"
       close, // stop webserver
