@@ -1,90 +1,87 @@
-# rf-config
+# rf-api-simple
+Nice little Framework on top of express: start express, add endpint settings, rights management, simplified systax and better error handling.
 
-NodeJS config loader. Reads a config.js, package.json, LICENSE, .env and CHANGELOG.md.
-
-
-## Getting Started
-
-> npm install rf-config
-
-To load this config.js file in `./config/config.js`:
+## Getting started
+The `server.js`
 ```js
-module.exports = {
+const apiSimple = require('rf-api-simple');
+let API = {};
+function restartAPI () {
+   if (API && API.close) API.close();
+   API = apiSimple.createApi({ pathsWebserver: 'dest', port: 4000 });
+   API.startApiFiles('server/apis', function (startApi) {
+      startApi(API);
+   });
+}
+restartAPI(); // init
 
-   // we can have any content here
-   config: 'local',
-   abc: 'def',
+```
 
-   // "paths" is predefined to store all projects paths
-   paths: {
-      myReadme: 'README.md', // /README.md in root folder
-      gitignore: '.gitignore',
-      webserver: 'dest',
-      server: 'server',
-   }
+The files under `server/apis/address.js`
+```js
+exports.start = function (db, API) {
+   API.get('addresses', function (req, res) {
+      res.send(null, 'Hello World!')
+   }, { permission: false });
+};
+
+```
+
+## Regular server configuration example
+The `server.js`
+```js
+// deps
+let config = require('rf-config').init(__dirname);
+let log = require('rf-log').start(`[${config.app.name}]`);
+
+// databases
+for (let dbName in config.db) { // global => mongodb://rf-mongodb:27017/global
+   config.db[dbName] = `mongodb://${dbHost}/${config.db[dbName]}`;
+}
+let mongooseMulti = require('mongoose-multi');
+let db = mongooseMulti.start(config.db, config.paths.schemas);
+
+const apiSimple = require('rf-api-simple');
+let API = {};
+function restartAPI () {
+   if (API && API.close) API.close();
+   API = apiSimple.createApi({
+      pathsWebserver: config.paths.webserver,
+      port: config.port,
+      bodyParserLimitSize: '200mb'
+   });
+   API.startApiFiles(config.paths.apis, function (startApi) {
+      startApi(API, db);
+   });
+}
+
+// init
+db.global.mongooseConnection.once('open', restartAPI);
+
+// for external testing: export express server
+module.exports = API.server;
+```
+
+The files under `server/apis`
+```js
+// dependencies
+const async = require('async');
+const objectId = require('mongoose').Types.ObjectId;
+
+exports.start = function (db, API) {
+   API.get('addresses', function (req, res) {
+      db.user.addresses
+         .find({'accountId': req.data })
+         .exec(res.send);
+   }, { section: ['account', 'shipping', 'sale'] });
 };
 ```
 
-Use this single line:
-
-```js
-var config = require('rf-config').init(__dirname); // root path '__dirname'
-
-console.log(config);
-// this returns a configuration like:
-
-{
-
-   config: 'local',   // variables
-   abc: 'def',
-
-   paths: {          // the paths in absolute form for easy backend use
-      myReadme: '/home/user/project/README.md',
-      gitignore: '/home/user/project/.gitignore',
-      webserver: '/home/user/project/dest',
-      server: '/home/user/project/server',
-   },
-
-   pathsRelative: {  // the paths also relative
-      myReadme: 'README.md',
-      gitignore: '.gitignore',
-      webserver: 'dest',
-      server: 'server',
-   },
-
-   app: {            // other infos we got for the app
-      name: 'rf-config',
-      version: '0.1.6',
-      packageJson: {
-         name: 'rf-config',
-         version: '0.1.6',
-         description: 'Simple NodeJS config loading lib',
-         author: 'Rapidfacture GmbH',
-         license: 'MIT',
-         main: 'index.js'
-      }
-   }
-}
-```
-
-Once Loaded, access the configuration later in other files with:
-```js
-var config = require('rf-config');
-```
-NOTE: The `init` function is only present the first time, as the config should be loaded only once - when the project starts.
-
 
 ## Development
-
-Install the dev tools with
-
-> npm install
-
-Then you can runs some test cases and eslint with:
-
-> npm test
+Use eslint to check the code
 
 
 ## Legal Issues
 * Licenese: MIT
-* Author: Felix Furtmayr, Julian von Mendel
+* Author: Felix Furtmayr
