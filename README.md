@@ -52,15 +52,6 @@ module.exports = API.server;
 ```
 
 The files under `server/apis`.
-
-Stick to the naming convention:
-* each endpoint name has to begin with the name of the file
-* examples:
-   * get addresses
-   * get address
-   * post adderss
-   * post delete address
-   * get addresses-of-accountId
 ```js
 // dependencies
 const async = require('async');
@@ -74,6 +65,14 @@ exports.start = function (db, API) {
    }, { section: ['account', 'shipping', 'sale'] });
 };
 ```
+Stick to the naming convention:
+* each endpoint name has to begin with the name of the file
+* examples:
+   * get addresses
+   * get address
+   * post adderss
+   * post address-delete
+   * get addresses-of-accountId
 
 
 ## Development
