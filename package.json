@@ -1,0 +1,16 @@
+{
+   "name": "rf-api-simple",
+   "version": "0.5.0",
+   "description": "Small Framework on top of express adding endpint settings, rights management, simplified systax and better error handling.",
+   "author": "Rapidfacture GmbH",
+   "license": "MIT",
+   "repository": {
+      "type": "git",
+      "url": "git@github.com:RAPIDFACTURE/rf-config.git"
+   },
+   "main": "index.js",
+   "dependencies": {
+      "jsonwebtoken": "8.5.1",
+      "rf-log": "1.0.0",
+   }
+}
