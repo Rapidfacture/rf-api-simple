@@ -15,7 +15,7 @@ function createApi (config, apiCallbackFunction) {
    // import webserver path from rf-config
    if (config.paths) {
       if (config.paths.webserver) config.pathsWebserver = config.paths.webserver;
-      if (config.paths.apis) config.pathsApis = config.paths.webserver;
+      if (config.paths.apis) config.pathsApis = config.paths.apis;
    }
 
    const defaultConfig = {
