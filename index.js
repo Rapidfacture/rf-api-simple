@@ -3,50 +3,47 @@
 const fs = require('fs');
 const log = require('rf-log');
 const jwt = require('jsonwebtoken');
+const rfHttp = require('rf-http');
 
 module.exports = {
    createApi
 };
 
-function createApi (app, config) {
+function createApi (config) {
    config = config || {};
+   const defaultConfig = {
+      port: 4000,
+      pathsWebserver: 'dest',
+      bodyParserLimitSize: '110mb',
+      devMode: false,
+      sessionSecret: null,
+      expiresIn: false
+   };
+   Object.assign(config, defaultConfig);
+   let http = rfHttp.start(config);
+   let expressApp = http.app;
+
+   function close () {
+      if (http && http.server) {
+         http.server.close();
+         http = {};
+      }
+   }
+
    return {
       log: log,
       prefix: '/api/',
       config: config,
-      startApiFiles,
+      app: expressApp,
+      server: http.server, // return of "app.listen"
+      close, // stop webserver
+      startApiFiles, // start everything
       generateToken,
       checkToken,
       //  HTTP helper functions to shorten the code
       get,
       post
    };
-
-   function startApiFiles (apiPath, callback) {
-      try {
-         var paths = getDirectoryPaths(apiPath);
-         paths.forEach(function (path) {
-            var apiStartFunction = require(path).start;
-            callback(apiStartFunction);
-         });
-      } catch (err) {
-         log.critical(err);
-      }
-
-      function getDirectoryPaths (path) {
-         var pathList = [];
-         fs.readdirSync(path).forEach(function (file) {
-            var filePath = path + '/' + file;
-            var stat = fs.statSync(filePath);
-            if (stat && stat.isDirectory()) {
-               pathList = pathList.concat(getDirectoryPaths(filePath));
-            } else if (file[0] !== '.') {
-               pathList.push(path + '/' + file.split('.')[0]);
-            }
-         });
-         return pathList;
-      }
-   }
 
    function generateToken (user, sessionSecret) {
       user = JSON.parse(JSON.stringify(user));
@@ -90,15 +87,15 @@ function createApi (app, config) {
    function get (endpointName, func, settings) {
       if (!settings) return log.critical(`endpoint ${endpointName} has no settings defined!`);
       if (settings.realGet) {
-         apiSend(app, endpointName, func, settings, 'realGet', this);
+         apiSend(expressApp, endpointName, func, settings, 'realGet', this);
       } else {
-         apiSend(app, endpointName, func, settings, 'get', this);
+         apiSend(expressApp, endpointName, func, settings, 'get', this);
       }
    }
 
    function post (endpointName, func, settings) {
       if (!settings) return log.critical(`endpoint ${endpointName} has no settings defined!`);
-      apiSend(app, endpointName, func, settings, 'post', this);
+      apiSend(expressApp, endpointName, func, settings, 'post', this);
    }
 }
 
@@ -202,6 +199,32 @@ function Response (res) {
          return JSON.stringify(err);
       }
       return err;
+   }
+}
+
+function startApiFiles (apiPath, callback) {
+   try {
+      var paths = getDirectoryPaths(apiPath);
+      paths.forEach(function (path) {
+         var apiStartFunction = require(path).start;
+         callback(apiStartFunction);
+      });
+   } catch (err) {
+      log.critical(err);
+   }
+
+   function getDirectoryPaths (path) {
+      var pathList = [];
+      fs.readdirSync(path).forEach(function (file) {
+         var filePath = path + '/' + file;
+         var stat = fs.statSync(filePath);
+         if (stat && stat.isDirectory()) {
+            pathList = pathList.concat(getDirectoryPaths(filePath));
+         } else if (file[0] !== '.') {
+            pathList.push(path + '/' + file.split('.')[0]);
+         }
+      });
+      return pathList;
    }
 }
 
