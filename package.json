@@ -6,11 +6,11 @@
    "license": "MIT",
    "repository": {
       "type": "git",
-      "url": "git@github.com:RAPIDFACTURE/rf-config.git"
+      "url": "http://gitlab.rapidfacture.cloud/felix_furtmayr/rf-api-simple.git"
    },
    "main": "index.js",
    "dependencies": {
       "jsonwebtoken": "8.5.1",
-      "rf-log": "1.0.0",
+      "rf-log": "1.0.0"
    }
 }
