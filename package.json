@@ -1,6 +1,6 @@
 {
    "name": "rf-api-simple",
-   "version": "0.5.5",
+   "version": "0.5.6",
    "description": "Nice little Framework on top of express: start express, add endpint settings, rights management, simplified systax and better error handling.",
    "author": "Rapidfacture GmbH",
    "license": "MIT",
