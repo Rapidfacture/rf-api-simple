@@ -17,7 +17,7 @@ restartAPI(); // init
 
 ```
 
-The files under `server/apis/address.js`
+The files under `server/apis/` like `server/apis/address.js`
 ```js
 exports.start = function (db, API) {
    API.get('addresses', function (req, res) {
@@ -62,7 +62,16 @@ db.global.mongooseConnection.once('open', restartAPI);
 module.exports = API.server;
 ```
 
-The files under `server/apis`
+The files under `server/apis`.
+
+Stick to the naming convention:
+* each endpoint name has to begin with the name of the file
+* examples:
+   * get addresses
+   * get address
+   * post adderss
+   * post delete address
+   * get addresses-of-accountId
 ```js
 // dependencies
 const async = require('async');
