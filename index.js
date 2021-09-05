@@ -9,25 +9,36 @@ module.exports = {
    createApi
 };
 
-function createApi (config) {
+function createApi (config, apiCallbackFunction) {
    config = config || {};
+
+   // import webserver path from rf-config
+   if (config.paths) {
+      if (config.paths.webserver) config.pathsWebserver = config.paths.webserver;
+      if (config.paths.apis) config.pathsApis = config.paths.webserver;
+   }
+
    const defaultConfig = {
       port: 4000,
       pathsWebserver: 'dest',
+      // pathsApis: 'server/apis', // no default
       bodyParserLimitSize: '110mb',
       devMode: false,
       sessionSecret: null,
       expiresIn: false
    };
    Object.assign(config, defaultConfig);
+
+   // init
    let http = rfHttp.start(config);
    let expressApp = http.app;
-
-   function close () {
-      if (http && http.server) {
-         http.server.close();
-         http = {};
-      }
+   if (config.pathsApis && apiCallbackFunction) {
+      log.success(`starting apis under ${config.pathsApis}`);
+      startApiFiles(config.pathsApis, apiCallbackFunction);
+   } else if (apiCallbackFunction && !config.pathsApis) {
+      log.error(`apiCallbackFunction defined but no config.pathsApis`);
+   } else if (!apiCallbackFunction && config.pathsApis) {
+      log.error(`config.pathsApis defined but no apiCallbackFunction`);
    }
 
    return {
@@ -37,13 +48,24 @@ function createApi (config) {
       app: expressApp,
       server: http.server, // return of "app.listen"
       close, // stop webserver
-      startApiFiles, // start everything
+      startApi, // start everything
       generateToken,
       checkToken,
       //  HTTP helper functions to shorten the code
       get,
       post
    };
+
+   function close () {
+      if (http && http.server) {
+         http.server.close();
+         http = {};
+      }
+   }
+
+   function startApi (callback) {
+      startApiFiles(config.pathsApis, callback);
+   }
 
    function generateToken (user, sessionSecret) {
       user = JSON.parse(JSON.stringify(user));

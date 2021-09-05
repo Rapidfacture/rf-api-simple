@@ -8,8 +8,11 @@ const apiSimple = require('rf-api-simple');
 let API = {};
 function restartAPI () {
    if (API && API.close) API.close();
-   API = apiSimple.createApi({ pathsWebserver: 'dest', port: 4000 });
-   API.startApiFiles('server/apis', function (startApi) {
+   API = apiSimple.createApi({
+      pathsWebserver: 'dest',
+      port: 4000,
+      apiPath: 'server/apis'
+   }, function (startApi) {
       startApi(API);
    });
 }
@@ -19,7 +22,7 @@ restartAPI(); // init
 
 The files under `server/apis/` like `server/apis/address.js`
 ```js
-exports.start = function (db, API) {
+exports.start = function (API) {
    API.get('addresses', function (req, res) {
       res.send(null, 'Hello World!')
    }, { permission: false });
@@ -33,24 +36,13 @@ The `server.js`
 // deps
 let config = require('rf-config').init(__dirname);
 let log = require('rf-log').start(`[${config.app.name}]`);
-
-// databases
-for (let dbName in config.db) { // global => mongodb://rf-mongodb:27017/global
-   config.db[dbName] = `mongodb://${dbHost}/${config.db[dbName]}`;
-}
-let mongooseMulti = require('mongoose-multi');
-let db = mongooseMulti.start(config.db, config.paths.schemas);
+let db = require('mongoose-multi').start(config.db, config.paths.schemas);
 
 const apiSimple = require('rf-api-simple');
 let API = {};
 function restartAPI () {
    if (API && API.close) API.close();
-   API = apiSimple.createApi({
-      pathsWebserver: config.paths.webserver,
-      port: config.port,
-      bodyParserLimitSize: '200mb'
-   });
-   API.startApiFiles(config.paths.apis, function (startApi) {
+   API = apiSimple.createApi(config, function (startApi) {
       startApi(API, db);
    });
 }
