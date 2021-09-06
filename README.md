@@ -1,5 +1,5 @@
 # rf-api-simple
-Nice little Framework on top of express: start express, add endpint settings, rights management, simplified systax and better error handling.
+Nice little Framework on top of express: static webserver, endpoint settings for rights management, simplified systax and improved error handling. We combined the best of several years working with express and mongoose.
 
 ## Getting started
 The `server.js`
@@ -53,7 +53,7 @@ module.exports = API.server;
 
 The files under `server/apis`.
 ```js
-// dependencies
+// deps
 const async = require('async');
 const objectId = require('mongoose').Types.ObjectId;
 
