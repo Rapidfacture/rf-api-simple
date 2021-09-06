@@ -2,7 +2,7 @@
 Nice little Framework on top of express: static webserver, endpoint settings for rights management, simplified systax and improved error handling. We combined the best of several years working with express and mongoose.
 
 ## Getting started
-The `server.js`
+Your `server.js`
 ```js
 const apiSimple = require('rf-api-simple');
 apiSimple.createApi({
@@ -12,9 +12,6 @@ apiSimple.createApi({
 }, function (startApiFileFunction) {
    startApiFileFunction(API);
 });
-
-restartAPI(); // init
-
 ```
 
 The files under `server/apis/` like `server/apis/address.js`
@@ -28,7 +25,9 @@ exports.start = function (API) {
 ```
 
 ## Regular server configuration example
-The `server.js`
+The example shows mutiple mongoose databases, webserver and many endpoint files, external config variables and nice colored logging.
+
+Your `server.js`
 ```js
 // deps
 let config = require('rf-config').init(__dirname);
@@ -59,6 +58,14 @@ const objectId = require('mongoose').Types.ObjectId;
 
 exports.start = function (db, API) {
    API.get('addresses', function (req, res) {
+      console.log(req)
+      // this provides much usable data extracted from the token:
+      // req: {
+      //    data
+      //    user,
+      //    rights,
+      //    originalRequest
+      // }
       db.user.addresses
          .find({'accountId': req.data })
          .exec(res.send);
