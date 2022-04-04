@@ -5,7 +5,7 @@ Nice little Framework on top of express: static webserver, endpoint settings for
 Your `server.js`
 ```js
 const apiSimple = require('rf-api-simple');
-apiSimple.createApi({
+let API = apiSimple.createApi({
    pathsWebserver: 'dest',
    port: 4000,
    apiPath: 'server/apis'
