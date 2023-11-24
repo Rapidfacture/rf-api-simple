@@ -8,7 +8,7 @@ const apiSimple = require('rf-api-simple');
 let API = apiSimple.createApi({
    pathsWebserver: 'dest',
    port: 4000,
-   apiPath: 'server/apis'
+   pathsApis: 'server/apis'
 }, function (startApiFileFunction) {
    startApiFileFunction(API);
 });
