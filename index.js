@@ -27,7 +27,11 @@ function createApi (config, apiCallbackFunction) {
       sessionSecret: null,
       expiresIn: false
    };
-   Object.assign(config, defaultConfig);
+
+   // use default options if not defined
+   for (var key in defaultConfig) {
+      if (!config[key] && config[key] !== false) config[key] = defaultConfig[key];
+   }
 
    // init
    let http = rfHttp.start(config);
@@ -69,13 +73,14 @@ function createApi (config, apiCallbackFunction) {
       startApiFiles(config.pathsApis, callback);
    }
 
-   function generateToken (user, sessionSecret) {
-      user = JSON.parse(JSON.stringify(user));
-      if (user.firstname) user.firstname = b64EncodeUnicode(user.firstname);
-      if (user.lastname) user.lastname = b64EncodeUnicode(user.lastname);
+   function generateToken (user, sessionSecret, rights) {
+      let data = JSON.parse(JSON.stringify(user));
+      if (data.firstname) data.firstname = b64EncodeUnicode(user.firstname);
+      if (data.lastname) data.lastname = b64EncodeUnicode(user.lastname);
+      if (rights) user.rights = rights;
       if (sessionSecret) config.sessionSecret = sessionSecret;
       let expiresIn = config.expiresIn || 60 * 60 * 168; // 1 week as default
-      return jwt.sign(user, config.sessionSecret, expiresIn);
+      return jwt.sign(data, config.sessionSecret, expiresIn);
    }
 
    function checkToken (settings, req) {
